@@ -1,0 +1,77 @@
+{% set name = "grass" %}
+{% set version = "8.4.0" %}  # Use actual GRASS version, not 1.0.0
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/OSGeo/grass/archive/{{ version }}.tar.gz
+  # OR use git_url with a specific tag:
+  # git_url: https://github.com/OSGeo/grass.git
+  # git_rev: {{ version }}
+  sha256: # You'll need to calculate this for the tarball
+
+build:
+  number: 0
+  skip: true  # [win]  # Skip Windows builds initially if not supported
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - cmake
+    - make
+    - pkg-config
+  host:
+    - flex
+    - bison
+    - proj
+    - gdal
+    - xorg-libx11  # [linux]
+    - xorg-xorgproto  # [linux]
+    - mesalib  # [linux]
+    - cairo
+    - postgresql
+    - gettext
+    - fftw
+    - openblas
+    - pdal
+    - libglu  # [linux]
+    - wxpython
+  run:
+    - {{ pin_compatible('proj') }}
+    - {{ pin_compatible('gdal') }}
+    - xorg-libx11  # [linux]
+    - xorg-xorgproto  # [linux]
+    - mesalib  # [linux]
+    - cairo
+    - postgresql
+    - gettext
+    - fftw
+    - openblas
+    - pdal
+    - libglu  # [linux]
+    - wxpython
+
+test:
+  commands:
+    - grass --version  # Basic test to ensure grass runs
+
+about:
+  home: https://grass.osgeo.org/
+  license: GPL-2.0-or-later
+  license_family: GPL
+  license_file: COPYING
+  summary: Geographic Resources Analysis Support System (GRASS GIS)
+  description: |
+    GRASS (Geographic Resources Analysis Support System) is a Geographic Information System 
+    used for geospatial data management and analysis, image processing, graphics/map production, 
+    spatial modeling, and visualization.
+  dev_url: https://github.com/OSGeo/grass
+  doc_url: https://grass.osgeo.org/grass-stable/manuals/index.html
+
+extra:
+  recipe-maintainers:
+    - dudaka  # Your GitHub username
+    # Add other maintainers if applicable
