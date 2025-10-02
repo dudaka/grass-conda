@@ -10,6 +10,8 @@ source:
 
 build:
   number: 0
+  skip: true  # [win]  # Skip Windows builds initially
+  post-link: post-link.sh   # [unix]
 
 requirements:
   build:
