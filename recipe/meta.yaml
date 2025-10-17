@@ -1,16 +1,14 @@
 {% set name = "grass" %}
 {% set version = "8.4.1" %}
+{% set sha256 = "611e82dd919cd0e5c1a511e7efbc5c769e22ac6c613c3c4a2633c5d4b07c7e31" %}
 
 package:
-  name: {{ name|lower }}
+  name: {{ name }}
   version: {{ version }}
 
 source:
-  # For local testing, build from the repository checkout
-  path: ..
-  # For conda-forge submission, replace with a tarball URL and sha256
-  # url: https://github.com/OSGeo/grass/archive/refs/tags/grass-{{ version }}.tar.gz
-  # sha256: <fill-in>
+  url: https://github.com/OSGeo/grass/archive/refs/tags/{{ version }}.tar.gz
+  sha256: {{ sha256 }}
 
 build:
   number: 0
