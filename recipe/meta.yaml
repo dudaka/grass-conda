@@ -1,62 +1,123 @@
-{% set version = "1.0.0" %}
+{% set name = "grass" %}
+{% set version = "8.4.1" %}
 
 package:
-  name: grass
+  name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  git_url: https://github.com/OSGeo/grass.git
-#  path: /home/hcho/usr/grass/grass
+  # For local testing, build from the repository checkout
+  path: ..
+  # For conda-forge submission, replace with a tarball URL and sha256
+  # url: https://github.com/OSGeo/grass/archive/refs/tags/grass-{{ version }}.tar.gz
+  # sha256: <fill-in>
 
 build:
   number: 0
+  skip: false  # [win]
+  # GRASS uses Autotools configure/make; build.sh handles the steps
 
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - cmake
-    - make # [unix]
+    - make
     - pkg-config
-    #- msbuild # [win]
+    - bison
+    - flex
+    - gettext
   host:
-    - flex
-    - bison
-    - proj
+    - python
+    - pip
     - gdal
+    - geos
+    - proj
+    - proj-data
+    - sqlite
+    - readline
+    - ncurses
+    - cairo
+    - freetype
+    - fontconfig
+    - expat
+    - pixman
     - xorg-libx11
     - xorg-xproto
-    - libopengl
-    - libgl-devel
-    - cairo
-    - postgresql
-    - gettext
+    - xorg-kbproto
+    - xorg-xextproto
+    - xorg-renderproto
+    - libpng
+    - libjpeg-turbo
+    - libtiff
+    - zlib
+    - zstd
+    - bzip2
+    - libpq
+    - jsoncpp
+    - libmagic
     - fftw
     - openblas
+    - liblapack
+    - libnetcdf
     - pdal
-    - libglu
-    - wxpython
+    - libiconv
   run:
-    - flex
-    - bison
-    - proj
+    - python
+    - libiconv
     - gdal
-    - xorg-libx11
-    - xorg-xproto
-    - libopengl
-    - libgl-devel
+    - geos
+    - proj
+    - proj-data
+    - sqlite
+    - readline
+    - ncurses
     - cairo
-    - postgresql
-    - gettext
+    - freetype
+    - fontconfig
+    - expat
+    - libpng
+    - libjpeg-turbo
+    - libtiff
+    - zlib
+    - zstd
+    - bzip2
+    - libpq
+    - jsoncpp
+    - libmagic
     - fftw
     - openblas
+    - liblapack
+    - libnetcdf
     - pdal
-    - libglu
-    - wxpython
+    # Python modules typically used by GRASS python tools
+    - numpy
+    - pillow
+    - matplotlib
+    - python-dateutil
+    - ply
+    - psycopg2
+    - python-magic
+
+test:
+  commands:
+    - grass --version
+    - grass --tmp-project EPSG:4326 --exec g.version -rge
+  requires:
+    - pip
 
 about:
   home: https://grass.osgeo.org/
-  license: GPL 2+
-  summary: GRASS (https://grass.osgeo.org/) is a Geographic Information System used for geospatial data management and analysis, image processing, graphics/map production, spatial modeling, and visualization.
+  summary: Geographic Resources Analysis Support System (GRASS GIS)
+  description: |
+    GRASS GIS is a free and open-source Geographic Information System (GIS)
+    used for geospatial data management and analysis, image processing, and spatial modeling.
+  license: GPL-2.0-only
+  license_file:
+    - GPL.TXT
+    - COPYING
+  doc_url: https://grass.osgeo.org/learn/
   dev_url: https://github.com/OSGeo/grass
-  doc_url: https://grass.osgeo.org/grass-stable/manuals/index.html
+
+extra:
+  recipe-maintainers:
+    - your-github-handle
