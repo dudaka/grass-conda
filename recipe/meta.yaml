@@ -27,7 +27,7 @@ requirements:
     - flex
     - gettext
   host:
-    - python
+  - python >=3.9,<3.15
     - pip
     - gdal
     - geos
@@ -62,7 +62,7 @@ requirements:
     - pdal
     - libiconv
   run:
-    - python
+  - python >=3.9,<3.15
     - libiconv
     - gdal
     - geos

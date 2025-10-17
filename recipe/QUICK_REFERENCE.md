@@ -16,9 +16,16 @@ docker run --rm -v "$(pwd)/output:/output" grass-conda:latest \
 ./recipe/build_and_test.sh all
 ```
 
-### Using Local Conda-Build
+
+### Using Local Conda-Build (Multiple Python Versions)
 ```bash
-conda build recipe -c conda-forge --no-anaconda-upload --no-test
+# Build for a specific Python version
+conda build recipe --python 3.9
+
+# Build for all supported Python versions (3.9–3.14)
+for v in 3.9 3.10 3.11 3.12 3.13 3.14; do
+    conda build recipe --python $v
+done
 ```
 
 ## Installation Commands

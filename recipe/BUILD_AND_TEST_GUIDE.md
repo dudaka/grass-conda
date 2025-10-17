@@ -46,16 +46,22 @@ If you prefer to build locally without Docker:
 conda install -n base conda-build -y
 ```
 
-### Step 2: Build the Package
+
+### Step 2: Build the Package for Multiple Python Versions
 
 ```bash
 # Navigate to the GRASS source directory
 cd /home/dudaka/opt/grass-8.4.1
 
-# Build the package
-conda build recipe -c conda-forge --no-anaconda-upload --no-test
+# Build for a specific Python version (e.g., 3.9)
+conda build recipe --python 3.9
 
-# The package will be created at:
+# Or build for all supported versions (3.9–3.14):
+for v in 3.9 3.10 3.11 3.12 3.13 3.14; do
+   conda build recipe --python $v
+done
+
+# The packages will be created at:
 # ~/miniconda/conda-bld/linux-64/grass-8.4.1-*.tar.bz2
 ```
 
