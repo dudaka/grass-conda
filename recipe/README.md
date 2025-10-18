@@ -7,7 +7,7 @@ This repository contains everything needed to build GRASS GIS 8.4.1 as a conda p
 ### Option 1: Interactive Script (Easiest)
 
 ```bash
-./recipe/build_and_test.sh
+./build_and_test.sh
 ```
 
 Follow the menu to build and test the package.
@@ -16,7 +16,7 @@ Follow the menu to build and test the package.
 
 ```bash
 # Build and test everything automatically
-./recipe/build_and_test.sh all
+./build_and_test.sh all
 ```
 
 ### Option 3: Manual Docker Build
@@ -35,7 +35,7 @@ docker run --rm -v "$(pwd)/output:/output" grass-conda:latest \
 
 ## Documentation
 
-📖 **Full Guide:** [recipe/BUILD_AND_TEST_GUIDE.md](recipe/BUILD_AND_TEST_GUIDE.md)
+📖 **Full Guide:** [BUILD_AND_TEST_GUIDE.md](BUILD_AND_TEST_GUIDE.md)
 
 The comprehensive guide includes:
 - Detailed build instructions
@@ -44,13 +44,13 @@ The comprehensive guide includes:
 - Package publishing guidelines
 - Advanced configuration options
 
-🔧 **Troubleshooting:** [recipe/TROUBLESHOOTING.md](recipe/TROUBLESHOOTING.md)
+🔧 **Troubleshooting:** [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 - Quick reference for common errors
 - Diagnostic commands
 - Debug workflows
 - Emergency fixes
 
-📋 **Quick Reference:** [recipe/QUICK_REFERENCE.md](recipe/QUICK_REFERENCE.md)
+📋 **Quick Reference:** [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
 - All essential commands in one page
 - Fast command lookup
 
@@ -111,7 +111,7 @@ docker/
 ## Support
 
 For issues or questions:
-- Check the [troubleshooting section](recipe/BUILD_AND_TEST_GUIDE.md#troubleshooting)
+- Check the [troubleshooting section](BUILD_AND_TEST_GUIDE.md#troubleshooting)
 - Review GRASS GIS docs: https://grass.osgeo.org/
 - Check conda-forge guidelines: https://conda-forge.org/docs/
 

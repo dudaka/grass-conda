@@ -15,8 +15,8 @@ This guide provides step-by-step instructions for building and testing the GRASS
 This method builds the package in a clean Docker environment:
 
 ```bash
-# Navigate to the GRASS source directory
-cd /home/dudaka/opt/grass-8.4.1
+# Navigate to the GRASS conda package directory
+cd /home/dudaka/opt/grass-conda
 
 # Build the conda package inside Docker
 docker build -f docker/conda-build.Dockerfile --target builder -t grass-conda:latest .
@@ -49,8 +49,8 @@ conda install -n base conda-build -y
 ### Step 2: Build the Package
 
 ```bash
-# Navigate to the GRASS source directory
-cd /home/dudaka/opt/grass-8.4.1
+# Navigate to the GRASS conda package directory
+cd /home/dudaka/opt/grass-conda
 
 # Build the package
 conda build recipe -c conda-forge --no-anaconda-upload --no-test
@@ -441,7 +441,7 @@ Debug locally without Docker overhead:
 conda activate base
 
 # Build manually
-cd /home/dudaka/opt/grass-8.4.1
+cd /home/dudaka/opt/grass-conda
 conda build recipe -c conda-forge --no-anaconda-upload --no-test
 
 # Logs are easier to access:
@@ -641,7 +641,7 @@ Modify the `CONFIG_FLAGS` array in `recipe/build.sh`:
 
 ```bash
 # Remove build artifacts
-cd /home/dudaka/opt/grass-8.4.1
+cd /home/dudaka/opt/grass-conda
 make distclean
 
 # Rebuild Docker image from scratch

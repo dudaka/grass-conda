@@ -4,7 +4,7 @@
 
 ### Using Docker (Recommended)
 ```bash
-cd /home/dudaka/opt/grass-8.4.1
+cd /home/dudaka/opt/grass-conda
 docker build -f docker/conda-build.Dockerfile --target builder -t grass-conda:latest .
 mkdir -p output
 docker run --rm -v "$(pwd)/output:/output" grass-conda:latest \
@@ -13,7 +13,7 @@ docker run --rm -v "$(pwd)/output:/output" grass-conda:latest \
 
 ### Using Interactive Script
 ```bash
-./recipe/build_and_test.sh all
+./build_and_test.sh all
 ```
 
 ### Using Local Conda-Build
@@ -56,8 +56,8 @@ grass --text user1 --exec r.info elevation
 - **Package:** `output/grass-8.4.1-py312h3fd9d12_0.tar.bz2`
 - **Recipe:** `recipe/meta.yaml`
 - **Build Script:** `recipe/build.sh`
-- **Full Guide:** `recipe/BUILD_AND_TEST_GUIDE.md`
-- **Summary:** `recipe/PROJECT_SUMMARY.md`
+- **Full Guide:** `BUILD_AND_TEST_GUIDE.md`
+- **Summary:** `PROJECT_SUMMARY.md`
 
 ## Key Features
 

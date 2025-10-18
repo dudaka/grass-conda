@@ -17,7 +17,7 @@ Successfully created a fully functional conda package for GRASS GIS 8.4.1.
 
 ### Package Location
 ```
-/home/dudaka/opt/grass-8.4.1/output/grass-8.4.1-py312h3fd9d12_0.tar.bz2
+/home/dudaka/opt/grass-conda/output/grass-8.4.1-py312h3fd9d12_0.tar.bz2
 ```
 
 ## Key Achievements
@@ -103,7 +103,7 @@ All tests passing:
 
 ```bash
 # Option 1: Interactive script
-cd /home/dudaka/opt/grass-8.4.1
+cd /home/dudaka/opt/grass-conda
 ./recipe/build_and_test.sh
 
 # Option 2: Complete automated workflow
@@ -217,7 +217,7 @@ cd staged-recipes
 
 # Create recipe directory
 mkdir recipes/grass
-cp /home/dudaka/opt/grass-8.4.1/recipe/* recipes/grass/
+cp /home/dudaka/opt/grass-conda/recipe/* recipes/grass/
 ```
 
 ### 2. Update meta.yaml

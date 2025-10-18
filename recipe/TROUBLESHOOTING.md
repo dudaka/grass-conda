@@ -157,7 +157,7 @@ exit
 docker system prune -a --volumes
 
 # Remove build artifacts
-cd /home/dudaka/opt/grass-8.4.1
+cd /home/dudaka/opt/grass-conda
 make distclean
 rm -rf output/*.tar.bz2
 
@@ -171,7 +171,7 @@ docker build --no-cache -f docker/conda-build.Dockerfile -t grass-conda .
 # Skip Docker entirely
 conda create -n build-env conda-build -y
 conda activate build-env
-cd /home/dudaka/opt/grass-8.4.1
+cd /home/dudaka/opt/grass-conda
 conda build recipe -c conda-forge --no-test
 
 # Package at: ~/miniconda/conda-bld/linux-64/grass-*.tar.bz2
