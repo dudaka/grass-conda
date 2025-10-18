@@ -1,0 +1,23 @@
+# Conda build configuration
+# Build for Python 3.10, 3.11, 3.12, and 3.13
+python:
+  - 3.10
+  - 3.11
+  - 3.12
+  - 3.13
+
+# Pin numpy versions for compatibility
+numpy:
+  - 1.22  # for py310
+  - 1.23  # for py311
+  - 1.26  # for py312
+  - 1.26  # for py313
+
+# Ensure we use compatible versions
+pin_run_as_build:
+  python:
+    min_pin: x.x
+    max_pin: x.x
+  numpy:
+    min_pin: x.x
+    max_pin: x.x

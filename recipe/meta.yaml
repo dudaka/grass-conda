@@ -12,7 +12,7 @@ source:
 
 build:
   number: 0
-  skip: false  # [win]
+  skip: true  # [win]
   # GRASS uses Autotools configure/make; build.sh handles the steps
 
 requirements:
