@@ -1,5 +1,5 @@
-# Build GRASS conda recipe on Conda-Forge linux-anvil (AlmaLinux 9)
-FROM quay.io/condaforge/linux-anvil-x86_64:alma9 AS builder
+# Use micromamba image for lightweight conda builds
+FROM mambaorg/micromamba:1.5.10 AS builder
 
 USER root
 SHELL ["/bin/bash", "-lc"]
@@ -7,17 +7,8 @@ SHELL ["/bin/bash", "-lc"]
 # Create workspace directory
 WORKDIR /work
 
-# Bootstrap micromamba into /usr/local/bin and use /opt/conda as root prefix
-ENV MAMBA_ROOT_PREFIX=/opt/conda
-RUN set -euxo pipefail \
-    && dnf -y install --setopt=install_weak_deps=False bzip2 ca-certificates \
-    && curl -Ls -o /usr/local/bin/micromamba "https://micro.mamba.pm/api/micromamba/linux-64/latest" \
-    && chmod +x /usr/local/bin/micromamba \
-    && micromamba --version
-
-# Install build tooling in base env
+# Install build tools
 RUN micromamba install -y -n base -c conda-forge \
-    conda \
     conda-build \
     anaconda-client \
     boa \
@@ -26,11 +17,11 @@ RUN micromamba install -y -n base -c conda-forge \
     pkg-config \
     git \
     bison \
-    flex \
-    && micromamba clean -a -y
+    flex && \
+    micromamba clean -a -y
 
 # Copy the source tree
-COPY . /work
+COPY --chown=$MAMBA_USER:$MAMBA_USER . /work
 
 # Create a log directory
 RUN mkdir -p /work/build-logs
@@ -39,7 +30,7 @@ RUN mkdir -p /work/build-logs
 # Redirect both stdout and stderr to log files
 # Skip tests during build to see if package is created
 RUN set -x && \
-    micromamba run -n base conda build recipe -c conda-forge --no-anaconda-upload --no-test 2>&1 | tee /work/build-logs/conda-build.log || \
+    conda build recipe -c conda-forge --no-anaconda-upload --no-test 2>&1 | tee /work/build-logs/conda-build.log || \
     (echo "=== BUILD FAILED ===" | tee -a /work/build-logs/conda-build.log && \
      echo "Checking conda-build work directory..." | tee -a /work/build-logs/conda-build.log && \
      find /opt/conda/conda-bld -type f -name "*.log" -exec echo "=== {} ===" \; -exec tail -100 {} \; | tee -a /work/build-logs/conda-build.log && \
@@ -52,7 +43,7 @@ RUN echo "=== Checking build status ===" && \
     cat /tmp/build-status.txt 2>/dev/null || echo "No build status file found - build may have failed early"
 
 # Show built packages
-RUN ls -lah /opt/conda/conda-bld/linux-64/ || true
+RUN ls -lah /opt/conda/conda-bld/linux-64/
 
 # If no package was created, check the work directory
 RUN if [ ! -f /opt/conda/conda-bld/linux-64/grass-*.tar.bz2 ] && [ ! -f /opt/conda/conda-bld/linux-64/grass-*.conda ]; then \
@@ -64,17 +55,9 @@ RUN if [ ! -f /opt/conda/conda-bld/linux-64/grass-*.tar.bz2 ] && [ ! -f /opt/con
         exit 1; \
     fi
 
-FROM quay.io/condaforge/linux-anvil-x86_64:alma9 AS tester
+FROM mambaorg/micromamba:1.5.10 AS tester
 SHELL ["/bin/bash", "-lc"]
 WORKDIR /work
-
-# Bootstrap micromamba in tester, too
-ENV MAMBA_ROOT_PREFIX=/opt/conda
-RUN set -euxo pipefail \
-    && dnf -y install --setopt=install_weak_deps=False bzip2 ca-certificates \
-    && curl -Ls -o /usr/local/bin/micromamba "https://micro.mamba.pm/api/micromamba/linux-64/latest" \
-    && chmod +x /usr/local/bin/micromamba \
-    && micromamba --version
 
 # Copy built packages from previous stage
 COPY --from=builder /opt/conda/conda-bld /opt/conda/conda-bld
@@ -89,9 +72,13 @@ RUN micromamba create -y -n test -c conda-forge -c file:///opt/conda/conda-bld \
     pdal \
     numpy \
     pillow \
-    matplotlib \
-    && micromamba clean -a -y
+    matplotlib && \
+    micromamba clean -a -y
+
+ENV MAMBA_DOCKERFILE_ACTIVATE=1
+ENV CONDA_DEFAULT_ENV=test
+RUN echo "conda activate test" >> ~/.bashrc
 
 # Smoke tests
-RUN micromamba run -n test grass --version && \
-    micromamba run -n test grass --tmp-project EPSG:4326 --exec g.version -rge
+RUN conda run -n test grass --version && \
+    conda run -n test grass --tmp-project EPSG:4326 --exec g.version -rge

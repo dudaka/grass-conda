@@ -38,3 +38,6 @@ conda install grass -c ~/opt/miniconda/envs/grass-conda/conda-bld
 ```bash
 ls -al ~/opt/miniconda/envs/grass-conda-test/bin/grass
 ```
+
+
+docker run -it --rm --volume $(pwd):/data --env HOME=/data/ grass-gis:8.4.1-ubuntu24.04 grass --text /data/nc_basic_spm_grass7/user1 --exec g.region -p

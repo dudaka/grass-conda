@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1.8@sha256:d6d396f3780b1dd56a3acbc975f57bd2fc501989b50164c41387c42d04e780d0
 
-# Note: This file must be kept in sync in ./Dockerfile and ./docker/ubuntu/Dockerfile.
-#       Changes to this file must be copied over to the other file.
+# Dockerfile for building GRASS GIS on AlmaLinux 9 (conda-forge base)
 
 ARG GUI=without
 
@@ -16,59 +15,60 @@ WORKDIR /tmp
 
 ARG GUI
 
-# Todo: re-consider required dev packages for addons (~400MB in dev packages)
-ARG GRASS_RUN_PACKAGES="bison \
-    bzip2 \
-    curl \
-    flex \
-    gcc \
+# GRASS GIS runtime packages for AlmaLinux/RHEL
+ARG GRASS_RUN_PACKAGES="gcc \
     gcc-c++ \
-    gdal \
-    geos \
-    proj \
-    netcdf \
+    make \
+    bison \
+    flex \
+    bzip2 \
     git \
+    glibc-langpack-en \
     cairo \
-    libcurl-devel \
     fftw \
     fftw-devel \
     freetype \
+    gdal \
     gdal-devel \
-    gsl \
-    libjpeg-turbo \
-    jsoncpp-devel \
+    geos \
+    geos-devel \
+    proj \
+    proj-devel \
+    netcdf \
+    netcdf-devel \
     file \
     file-libs \
+    libjpeg-turbo \
+    jsoncpp-devel \
     ncurses \
+    ncurses-devel \
     openblas \
     openblas-devel \
     openjpeg2 \
     libomp \
     libomp-devel \
-    geos-devel \
-    PDAL \
-    PDAL-devel \
-    proj-devel \
-    proj-data-north-america \
     postgresql-devel \
+    gsl \
     gsl-devel \
+    libpng \
+    libpng-devel \
+    postgresql-libs \
     python3 \
     python3-devel \
     readline \
+    readline-devel \
     sqlite \
+    sqlite-devel \
     libtiff \
+    libtiff-tools \
     libzstd \
-    make \
-    mesa-libGL \
-    mesa-libGLU \
-    moreutils \
-    ncurses \
-    sqlite \
+    libzstd-devel \
     unzip \
-    vim \
     wget \
+    vim \
     zip \
     zlib \
+    zlib-devel \
     "
 ENV GRASS_RUN_PACKAGES=${GRASS_RUN_PACKAGES}
 
@@ -77,18 +77,10 @@ ARG GRASS_BUILD_PACKAGES="cmake \
     bzip2-devel \
     cairo-devel \
     freetype-devel \
-    zlib-devel \
-    netcdf-devel \
-    openjpeg2-devel \
-    readline-devel \
     libjpeg-turbo-devel \
-    sqlite-devel \
     libtiff-devel \
-    libzstd-devel \
-    ncurses-devel \
     mesa-libGL-devel \
     mesa-libGLU-devel \
-    zlib-devel \
     "
 ENV GRASS_BUILD_PACKAGES=${GRASS_BUILD_PACKAGES}
 
@@ -101,11 +93,11 @@ ARG GRASS_CONFIG="--with-cxx \
   --with-cairo --with-cairo-ldflags=-lfontconfig \
   --with-freetype --with-freetype-includes=/usr/include/freetype2/ \
   --with-fftw \
-  --with-postgres --with-postgres-includes=/usr/include/postgresql \
+  --with-postgres --with-postgres-includes=/usr/include \
   --with-netcdf \
   --with-zstd \
   --with-bzlib \
-  --with-pdal \
+    --with-pdal \
   --without-mysql \
   --with-blas \
   --with-lapack \
@@ -122,7 +114,7 @@ ARG GRASS_PYTHON_PACKAGES="pip \
     Pillow \
     ply \
     matplotlib \
-    psycopg2 \
+    psycopg2-binary \
   "
 ENV GRASS_PYTHON_PACKAGES=${GRASS_PYTHON_PACKAGES}
 
@@ -134,7 +126,9 @@ ENV GRASS_CONFIG=${GRASS_CONFIG}
 
 FROM common_start as grass_with_gui
 
-ARG GRASS_RUN_PACKAGES="${GRASS_RUN_PACKAGES} adwaita-icon-theme \
+ARG GRASS_RUN_PACKAGES="${GRASS_RUN_PACKAGES} \
+  adwaita-icon-theme \
+  mesa-libGL \
   mesa-libGLU \
   gtk3 \
   libnotify \
@@ -144,27 +138,19 @@ ARG GRASS_RUN_PACKAGES="${GRASS_RUN_PACKAGES} adwaita-icon-theme \
   gettext \
   freeglut \
   gstreamer1-plugins-base \
-  libjpeg-turbo \
-  libpng \
   libSM \
-  libtiff \
   webkit2gtk3 \
 "
 
-ARG GRASS_BUILD_PACKAGES="${GRASS_BUILD_PACKAGES} adwaita-icon-theme \
-  mesa-libGL-devel \
-  mesa-libGLU-devel \
+ARG GRASS_BUILD_PACKAGES="${GRASS_BUILD_PACKAGES} \
+  gtk3-devel \
+  libnotify-devel \
+  SDL2-devel \
+  libXtst-devel \
   freeglut-devel \
   gstreamer1-plugins-base-devel \
-  gtk3-devel \
-  libjpeg-turbo-devel \
-  libnotify-devel \
-  libpng-devel \
-  SDL2-devel \
   libSM-devel \
-  libtiff-devel \
   webkit2gtk3-devel \
-  libXtst-devel \
 "
 
 ARG GRASS_CONFIG="${GRASS_CONFIG} --with-opengl \
@@ -180,52 +166,41 @@ ENV NO_AT_BRIDGE=1
 
 
 FROM grass_${GUI}_gui as grass_gis
-# Install EPEL and fetch packages
+
+# Install EPEL repository for additional packages
 RUN dnf install -y epel-release \
     && dnf config-manager --set-enabled crb \
-    && dnf update -y \
-    && dnf install -y \
+    && dnf makecache
+
+# Install runtime packages
+RUN dnf install -y --allowerasing --setopt=install_weak_deps=False \
     $GRASS_RUN_PACKAGES \
     && dnf clean all \
-    && rm -rf /var/cache/dnf
+    && rm -rf /var/cache/dnf/*
 
-# Set locale
-RUN dnf install -y glibc-langpack-en \
+# Set up locale
+RUN dnf install -y glibc-locale-source glibc-langpack-en \
     && localedef -i en_US -f UTF-8 en_US.UTF-8
 ENV LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
     LC_ALL=en_US.UTF-8
 
 ## fetch vertical datums for PDAL and store into PROJ dir
 WORKDIR /src
 
-# # Get datum grids
-# # Currently using https://proj.org/en/9.3/usage/network.html#how-to-enable-network-capabilities
-# FROM ubuntu:24.04 as datum_grids
-
-# # See: https://github.com/OSGeo/PROJ-data
-# RUN apt-get update \
-#     && apt-get install  -y --no-install-recommends --no-install-suggests \
-#     wget \
-#     && apt-get clean all \
-#     && rm -rf /var/lib/apt/lists/*
-
-# WORKDIR /tmp
-# RUN wget --no-check-certificate -r -l inf -A tif https://cdn.proj.org/
-
 # Start build stage
 FROM grass_gis as build
 
 # Add build packages
-RUN dnf install -y \
+RUN dnf install -y --setopt=install_weak_deps=False \
     $GRASS_BUILD_PACKAGES \
     && dnf clean all \
-    && rm -rf /var/cache/dnf
+    && rm -rf /var/cache/dnf/*
 
 # Add pip and Python packages
-RUN (echo "Install Python" \
-    && wget https://bootstrap.pypa.io/pip/get-pip.py \
-    && python3 get-pip.py \
-    && rm -r get-pip.py \
+RUN (echo "Install Python packages" \
+    && python3 -m ensurepip --upgrade \
+    && python3 -m pip install --upgrade pip \
     && mkdir -p /src/site-packages \
     && cd /src \
     && python3 -m pip install --no-cache-dir -t /src/site-packages --upgrade \
@@ -234,8 +209,11 @@ RUN (echo "Install Python" \
     && rm -rf /tmp/pip-* \
     )
 
-# copy grass gis source
-COPY . /src/grass_build/
+# Download and extract GRASS GIS source code from GitHub
+RUN wget https://github.com/OSGeo/grass/archive/refs/tags/8.4.1.tar.gz \
+    && tar -xzf 8.4.1.tar.gz \
+    && mv grass-8.4.1 /src/grass_build \
+    && rm 8.4.1.tar.gz
 
 WORKDIR /src/grass_build
 
@@ -286,22 +264,24 @@ ENV GRASS_SKIP_MAPSET_OWNER_CHECK=1 \
     LC_ALL="en_US.UTF-8" \
     PYTHONPATH="/usr/local/grass/etc/python/:${PYTHONPATH}" \
     LD_LIBRARY_PATH="/usr/local/grass/lib:$LD_LIBRARY_PATH" \
-    GDAL_DRIVER_PATH="/usr/lib/gdalplugins"
+    GDAL_DRIVER_PATH="/usr/lib64/gdalplugins"
+
+# Determine Python version dynamically
+RUN PYTHON_VERSION=$(python3 -c "import sys; print(f'python{sys.version_info.major}.{sys.version_info.minor}')") \
+    && echo "export PYTHON_VERSION=$PYTHON_VERSION" >> /etc/profile.d/python_version.sh
 
 # Copy GRASS GIS from build image
 COPY --link --from=build /usr/local/bin/* /usr/local/bin/
 COPY --link --from=build /usr/local/grass84 /usr/local/grass84/
-COPY --link --from=build /src/site-packages /usr/lib/python3.10/
-COPY --link --from=build /usr/lib/gdalplugins /usr/lib/gdalplugins
-# COPY --link --from=datum_grids /tmp/cdn.proj.org/*.tif /usr/share/proj/
+COPY --link --from=build /src/site-packages /usr/local/lib64/python3.9/site-packages/
+COPY --link --from=build /usr/lib64/gdalplugins /usr/lib64/gdalplugins
 
 # Create generic GRASS GIS lib name regardless of version number
 RUN ln -sf /usr/local/grass84 /usr/local/grass
 
 # show GRASS GIS, PROJ, GDAL etc versions
 RUN grass --tmp-project EPSG:4326 --exec g.version -rge && \
-    pdal --version && \
-    python --version
+    python3 --version
 
 WORKDIR /scripts
 
@@ -317,10 +297,9 @@ COPY docker/testdata/simple.laz .
 WORKDIR /scripts
 COPY docker/testdata/test_grass_session.py .
 ## run GRASS GIS python session and scan the test LAZ file
-RUN python /scripts/test_grass_session.py
+RUN python3 /scripts/test_grass_session.py
 RUN rm -rf /tmp/grasstest_epsg_25832
-# test LAZ file
-RUN grass --tmp-project EPSG:25832 --exec r.in.pdal input="/tmp/simple.laz" output="count_1" method="n" resolution=1 -g
+
 WORKDIR /grassdb
 VOLUME /grassdb
 

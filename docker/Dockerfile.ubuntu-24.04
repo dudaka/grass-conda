@@ -257,8 +257,11 @@ RUN (echo "Install Python" \
     && rm -rf /tmp/pip-* \
     )
 
-# copy grass gis source
-COPY . /src/grass_build/
+# Download and extract GRASS GIS source code from GitHub
+RUN wget https://github.com/OSGeo/grass/archive/refs/tags/8.4.1.tar.gz \
+    && tar -xzf 8.4.1.tar.gz \
+    && mv grass-8.4.1 /src/grass_build \
+    && rm 8.4.1.tar.gz
 
 WORKDIR /src/grass_build
 
